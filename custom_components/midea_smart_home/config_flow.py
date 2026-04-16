@@ -23,6 +23,7 @@ from .const import (
     CONF_LUA_FILE,
     CONF_MANUFACTURER_CODE,
     CONF_PASSWORD,
+    CONF_POLL_INTERVAL,
     CONF_PORT,
     CONF_PROTOCOL,
     CONF_SN,
@@ -31,6 +32,9 @@ from .const import (
     CONF_MODEL_NUMBER,
     CONF_TOKEN,
     DEFAULT_PORT,
+    DEFAULT_POLL_INTERVAL,
+    MIN_POLL_INTERVAL,
+    MAX_POLL_INTERVAL,
     DEVICE_TYPES,
     DOMAIN,
     JSON_FILES_PATH,
@@ -593,7 +597,7 @@ class MideaSmartHomeOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> FlowResult:
         return self.async_show_menu(
             step_id="init",
-            menu_options=["add_device", "update_account", "sync_cloud", "clear_cache"],
+            menu_options=["add_device", "update_account", "sync_cloud", "clear_cache", "poll_settings"],
         )
 
     async def async_step_add_device(
@@ -1111,6 +1115,33 @@ class MideaSmartHomeOptionsFlowHandler(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="clear_cache",
+        )
+
+    async def async_step_poll_settings(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        if user_input is not None:
+            new_options = dict(self._config_entry.options)
+            new_options[CONF_POLL_INTERVAL] = user_input[CONF_POLL_INTERVAL]
+
+            self.hass.config_entries.async_update_entry(
+                self._config_entry,
+                options=new_options,
+            )
+            return self.async_create_entry(title="", data={})
+
+        current_interval = self._config_entry.options.get(
+            CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL
+        )
+
+        return self.async_show_form(
+            step_id="poll_settings",
+            data_schema=vol.Schema({
+                vol.Required(
+                    CONF_POLL_INTERVAL,
+                    default=current_interval,
+                ): vol.All(int, vol.Range(min=MIN_POLL_INTERVAL, max=MAX_POLL_INTERVAL)),
+            }),
         )
 
     async def _refresh_cloud_device_info(self, devices: list) -> tuple[list, str]:

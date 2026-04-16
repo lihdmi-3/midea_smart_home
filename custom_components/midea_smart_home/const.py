@@ -27,8 +27,12 @@ CONF_MANUFACTURER_CODE = "manufacturer_code"
 CONF_DEVICE_NAME = "device_name"
 CONF_PROTOCOL = "protocol"
 CONF_CATEGORY = "category"
+CONF_POLL_INTERVAL = "poll_interval"
 
 DEFAULT_PORT = 6444
+DEFAULT_POLL_INTERVAL = 1
+MIN_POLL_INTERVAL = 1
+MAX_POLL_INTERVAL = 30
 
 
 class ProtocolVersion:

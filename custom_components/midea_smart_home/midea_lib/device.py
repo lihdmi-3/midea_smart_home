@@ -382,11 +382,13 @@ class MideaDevice:
         centralized: Optional[list[str]] = None,
         default_values: Optional[dict] = None,
         category: str = "",
+        poll_attributes: Optional[list[str]] = None,
     ):
         self._device_id = device_id
         self._device_type = device_type
         self._default_values = default_values or {}
         self._centralized = list(centralized) if isinstance(centralized, (list, tuple, set)) else []
+        self._poll_attributes = set(poll_attributes) if poll_attributes else set()
 
         # Initialize Logic Handler
         self._logic_handler = DeviceLogicHandler(device_type, device_name)
@@ -417,6 +419,8 @@ class MideaDevice:
         )
 
         self._data = {}
+        self._poll_data = {}
+        self._report_data = {}
         self._available = False
         self._last_available_time: float = 0.0
         self._pending_unavailable = False
@@ -444,7 +448,7 @@ class MideaDevice:
 
     @property
     def data(self):
-        return self._data
+        return {**self._report_data, **self._poll_data}
 
     @property
     def controller(self):
@@ -460,7 +464,7 @@ class MideaDevice:
         self._callbacks.append(callback)
 
     def _on_device_update(self, status: dict):
-        """Handle updates from the controller."""
+        """Handle updates from the controller (report data)."""
         notify = False
         if "available" in status:
             if status["available"]:
@@ -488,18 +492,20 @@ class MideaDevice:
 
             return
 
-        # Merge with existing data
-        new_data = self._data.copy()
-        new_data.update(status)
+        report_status = {
+            k: v for k, v in status.items()
+            if k not in self._poll_attributes
+        }
 
-        # Apply logic handler special handling
+        new_report_data = self._report_data.copy()
+        new_report_data.update(report_status)
+
         self._logic_handler.apply_special_handling(
-            new_data,
+            new_report_data,
             self._recent_controls,
             self._control_timeout
         )
 
-        # Clean up expired recent controls
         now = time.time()
         self._recent_controls = {
             k: v for k, v in self._recent_controls.items()
@@ -507,18 +513,17 @@ class MideaDevice:
         }
 
         for key, (value, timestamp) in self._recent_controls.items():
-            if now - timestamp < self._control_hold and new_data.get(key) != value:
-                new_data[key] = value
+            if now - timestamp < self._control_hold and new_report_data.get(key) != value:
+                new_report_data[key] = value
 
-        # Apply default values
         for key, value in self._default_values.items():
-            if key not in new_data:
-                new_data[key] = value
+            if key not in new_report_data and key not in self._poll_attributes:
+                new_report_data[key] = value
 
-        # Apply calculations
-        new_data = self._expression_evaluator.apply_calculations(new_data)
+        new_report_data = self._expression_evaluator.apply_calculations(new_report_data)
 
-        self._data = new_data
+        self._report_data = new_report_data
+        self._data = {**self._report_data, **self._poll_data}
         self._available = True
         self._notify_update()
 
@@ -528,6 +533,28 @@ class MideaDevice:
                 callback()
             except Exception as e:
                 _LOGGER.error("Error in MideaDevice callback: %s", e)
+
+    def update_from_poll(self, status: dict):
+        """Handle updates from polling (poll data)."""
+        if not status:
+            return
+
+        poll_status = {
+            k: v for k, v in status.items()
+            if k in self._poll_attributes
+        }
+
+        if not poll_status:
+            return
+
+        self._poll_data.update(poll_status)
+
+        for key, value in self._default_values.items():
+            if key in self._poll_attributes and key not in self._poll_data:
+                self._poll_data[key] = value
+
+        self._data = {**self._report_data, **self._poll_data}
+        self._notify_update()
 
     def set_attribute(self, attr: str, value: Any):
         """Set a device attribute."""

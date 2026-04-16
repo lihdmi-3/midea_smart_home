@@ -74,6 +74,12 @@
       "change_water": {
         "name": "换水提醒"
       },
+      "db_detergent_lack_l": {
+        "name": "洗涤剂状态(左筒)"
+      },
+      "db_detergent_lack_r": {
+        "name": "洗涤剂状态(右筒)"
+      },
       "detergent_lack": {
         "name": "洗涤剂状态"
       },
@@ -1207,6 +1213,58 @@
       },
       "cur_temperature_underside": {
         "name": "下管温度"
+      },
+      "db_error_code_l": {
+        "name": "错误代码(左筒)"
+      },
+      "db_error_code_r": {
+        "name": "错误代码(右筒)"
+      },
+      "db_progress_l": {
+        "name": "当前进程(左筒)",
+        "state": {
+          "anti-wrinkle": "防皱中",
+          "cold_air": "吹冷风中",
+          "dry": "烘干中",
+          "idle": "待机中",
+          "pre-wash": "预洗中",
+          "rinse": "漂洗中",
+          "soak": "浸泡中",
+          "spin": "脱水中",
+          "spin_high": "高速脱水中",
+          "unknown": "未知",
+          "wash": "洗涤中",
+          "weight": "称重中"
+        }
+      },
+      "db_progress_r": {
+        "name": "当前进程(右筒)",
+        "state": {
+          "anti-wrinkle": "防皱中",
+          "cold_air": "吹冷风中",
+          "dry": "烘干中",
+          "idle": "待机中",
+          "pre-wash": "预洗中",
+          "rinse": "漂洗中",
+          "soak": "浸泡中",
+          "spin": "脱水中",
+          "spin_high": "高速脱水中",
+          "unknown": "未知",
+          "wash": "洗涤中",
+          "weight": "称重中"
+        }
+      },
+      "db_remain_time_l": {
+        "name": "剩余时间(左筒)"
+      },
+      "db_remain_time_r": {
+        "name": "剩余时间(右筒)"
+      },
+      "db_running_status_l": {
+        "name": "运行状态(左筒)"
+      },
+      "db_running_status_r": {
+        "name": "运行状态(右筒)"
       },
       "deep_filter_percent": {
         "name": "滤芯剩余寿命"

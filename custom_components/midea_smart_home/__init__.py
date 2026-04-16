@@ -18,11 +18,13 @@ from .const import (
     CONF_LUA_FILE,
     CONF_PRODUCT_MODEL,
     CONF_MODEL_NUMBER,
+    CONF_POLL_INTERVAL,
     CONF_PORT,
     CONF_PROTOCOL,
     CONF_SN,
     CONF_SN8,
     CONF_TOKEN,
+    DEFAULT_POLL_INTERVAL,
     DEFAULT_PORT,
     DEVICE_TYPES,
     DOMAIN,
@@ -98,6 +100,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         centralized = list(device_mapping.get("centralized", []))
         default_values = dict(device_mapping.get("default_values", {}))
         initial_query = device_mapping.get("initial_query")
+        poll_query = device_mapping.get("poll_query")
+        poll_attributes = device_mapping.get("poll_attributes")
 
         entities_cfg = (device_mapping.get("entities") or {})
         for platform_cfg in entities_cfg.values():
@@ -145,10 +149,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if not device.available:
                 _LOGGER.warning("Device %s failed to connect after 5 seconds, will retry in background", device_id)
 
+            poll_interval = entry.options.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
+
             coordinator = MideaCoordinator(
                 hass,
                 device,
                 f"Device_{device_id}",
+                poll_interval=poll_interval,
+                poll_query=poll_query,
+                poll_attributes=poll_attributes,
             )
 
             import asyncio

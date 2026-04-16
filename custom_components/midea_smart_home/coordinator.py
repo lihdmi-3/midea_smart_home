@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Any, Union
 
@@ -23,10 +24,18 @@ class MideaCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         hass: HomeAssistant,
         device: MideaDevice,
         device_name: str,
+        poll_interval: int = 1,
+        poll_query: dict | None = None,
+        poll_attributes: list | None = None,
     ):
         self.device = device
         self.device_name = device_name
-        self.device_type = device.device_id # Use device_id or type as needed, mainly for logging
+        self.device_type = device.device_id
+        self.poll_interval = poll_interval
+        self.poll_query = poll_query
+        self.poll_attributes = poll_attributes
+        self._poll_task: asyncio.Task | None = None
+        self._poll_enabled = bool(poll_query and poll_attributes)
 
         super().__init__(
             hass,
@@ -47,11 +56,51 @@ class MideaCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not self.hass or self.hass.is_stopping:
             return
 
-        # The device update callback is called from a separate thread.
-        # We need to schedule the update on the event loop.
+        if self.device.available:
+            self._start_polling()
+        else:
+            self._stop_polling()
+
         self.hass.loop.call_soon_threadsafe(
             self.async_set_updated_data, self.device.data
         )
+
+    def _start_polling(self) -> None:
+        """Start the polling task if poll_query and poll_attributes are configured."""
+        if not self._poll_enabled:
+            return
+
+        if self._poll_task is not None and not self._poll_task.done():
+            return
+
+        self._poll_task = asyncio.create_task(self._async_poll_data())
+        _LOGGER.debug(
+            "[%s] Started polling with interval %s seconds",
+            self.device_name,
+            self.poll_interval
+        )
+
+    def _stop_polling(self) -> None:
+        """Stop the polling task."""
+        if self._poll_task is not None and not self._poll_task.done():
+            self._poll_task.cancel()
+            _LOGGER.debug("[%s] Stopped polling", self.device_name)
+        self._poll_task = None
+
+    async def _async_poll_data(self) -> None:
+        """Periodically poll device status."""
+        while True:
+            try:
+                await asyncio.sleep(self.poll_interval)
+                if self.device.available:
+                    await self.hass.async_add_executor_job(
+                        self.device.refresh_status, self.poll_query
+                    )
+            except asyncio.CancelledError:
+                _LOGGER.debug("[%s] Polling task cancelled", self.device_name)
+                break
+            except Exception as e:
+                _LOGGER.error("[%s] Error during polling: %s", self.device_name, e)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Return the current data."""

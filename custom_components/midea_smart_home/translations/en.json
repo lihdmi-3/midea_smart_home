@@ -74,6 +74,12 @@
       "change_water": {
         "name": "Change Water Reminder"
       },
+      "db_detergent_needed_l": {
+        "name": "Left Bucket Detergent Needed"
+      },
+      "db_detergent_needed_r": {
+        "name": "Right Bucket Detergent Needed"
+      },
       "detergent_lack": {
         "name": "Detergent Status"
       },
@@ -1195,6 +1201,58 @@
       },
       "cur_temperature_underside": {
         "name": "Lower Tube Temperature"
+      },
+      "db_error_code_l": {
+        "name": "Left Bucket Error Code"
+      },
+      "db_error_code_r": {
+        "name": "Right Bucket Error Code"
+      },
+      "db_progress_l": {
+        "name": "Left Bucket Progress",
+        "state": {
+          "anti-wrinkle": "Anti-Wrinkle",
+          "cold_air": "Cold Air",
+          "dry": "Dry",
+          "idle": "Idle",
+          "pre-wash": "Pre Wash",
+          "rinse": "Rinse",
+          "soak": "Soak",
+          "spin": "Spin",
+          "spin_high": "Spin High",
+          "unknown": "Unknown",
+          "wash": "Wash",
+          "weight": "Weight"
+        }
+      },
+      "db_progress_r": {
+        "name": "Right Bucket Progress",
+        "state": {
+          "anti-wrinkle": "Anti-Wrinkle",
+          "cold_air": "Cold Air",
+          "dry": "Dry",
+          "idle": "Idle",
+          "pre-wash": "Pre Wash",
+          "rinse": "Rinse",
+          "soak": "Soak",
+          "spin": "Spin",
+          "spin_high": "Spin High",
+          "unknown": "Unknown",
+          "wash": "Wash",
+          "weight": "Weight"
+        }
+      },
+      "db_remain_time_l": {
+        "name": "Left Bucket Remaining Time"
+      },
+      "db_remain_time_r": {
+        "name": "Right Bucket Remaining Time"
+      },
+      "db_running_status_l": {
+        "name": "Left Bucket Running Status"
+      },
+      "db_running_status_r": {
+        "name": "Right Bucket Running Status"
       },
       "deep_filter_percent": {
         "name": "Filter Life Remaining"
