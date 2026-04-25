@@ -322,6 +322,72 @@ DEVICE_MAPPING = {
             }
         }
     },
+    "632009C6": {
+        "rationale": ["off", "on"],
+        "calculate": {
+            "get": [
+                {
+                    "lvalue": "[water_consumption_l]",
+                    "rvalue": "float([water_consumption] / 1000.0)"
+                }
+            ],
+        },
+        "entities": {
+            Platform.BINARY_SENSOR: {
+                "standby_status": {
+                    "device_class": BinarySensorDeviceClass.RUNNING,
+                    "rationale": [1, 0],
+                    "translation_key": "water_output_switch"
+                }
+            },
+            Platform.SWITCH: {
+                "wash": {
+                    "device_class": SwitchDeviceClass.SWITCH
+                },
+                "heat": {
+                    "device_class": SwitchDeviceClass.SWITCH,
+                }
+            },
+            Platform.SELECT: {
+                "no_obsolete_water": {
+                    "options": {
+                        "water_saving": {"no_obsolete_water": "off", "save_mode": "on"},
+                        "water_quality": {"no_obsolete_water": "on", "save_mode": "off"}
+                    }
+                }
+            },
+            Platform.SENSOR: {
+                "in_tds": {
+                    "unit_of_measurement": CONCENTRATION_PARTS_PER_MILLION,
+                    "state_class": SensorStateClass.MEASUREMENT
+                },
+                "out_tds": {
+                    "unit_of_measurement": CONCENTRATION_PARTS_PER_MILLION,
+                    "state_class": SensorStateClass.MEASUREMENT
+                },
+                "life_1": {
+                    "unit_of_measurement": PERCENTAGE,
+                    "state_class": SensorStateClass.MEASUREMENT,
+                    "translation_key": "life_fist"
+                },
+                "water_consumption_l": {
+                    "device_class": SensorDeviceClass.WATER,
+                    "unit_of_measurement": UnitOfVolume.LITERS,
+                    "state_class": SensorStateClass.TOTAL
+                },
+                "hot_pot_temperature": {
+                    "device_class": SensorDeviceClass.TEMPERATURE,
+                    "unit_of_measurement": UnitOfTemperature.CELSIUS,
+                    "state_class": SensorStateClass.MEASUREMENT,
+                    "translation_key": "cur_temperature"
+                },
+                "heat_status": {
+                    "state_class": SensorStateClass.MEASUREMENT,
+                    "translation_key": "heat_status"
+                }
+            }
+        }
+    },
     "632009G9": {
         "rationale": ["off", "on"],
         "calculate": {
